@@ -32,14 +32,11 @@ public class PlayerController : MonoBehaviour
     {
     }
 
-    // FixedUpdate is used for physics-related updates
-    void FixedUpdate()
-    {
-       // Move the character forward
-       Vector3 forwardmovement = transform.forward * m_ForwardSpeed * Time.fixedDeltaTime;
-       m_rb.MovePosition(m_rb.position + forwardmovement);
-       
-    }
+    //// FixedUpdate is used for physics-related updates
+    //void FixedUpdate()
+    //{
+
+    //}
 
     //Function invoked when Left button is clicked
     void OnLeftButtonClick()

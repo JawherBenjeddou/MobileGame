@@ -20,14 +20,14 @@ public class LaneController : MonoBehaviour
     {
     }
 
-    // FixedUpdate is used for physics-related updates
-    void FixedUpdate()
-    {
-        // Move the character forward
-        Vector3 forwardmovement = transform.forward * m_ForwardSpeed * Time.fixedDeltaTime;
-        m_rb.MovePosition(m_rb.position + forwardmovement);
+    //// FixedUpdate is used for physics-related updates
+    //void FixedUpdate()
+    //{
+    //    // Move the character forward
+    //    Vector3 forwardmovement = transform.forward * m_ForwardSpeed * Time.fixedDeltaTime;
+    //    m_rb.MovePosition(m_rb.position + forwardmovement);
 
-    }
+    //}
 
     [SerializeField] private float m_ForwardSpeed = 5f;
     private Rigidbody m_rb;
