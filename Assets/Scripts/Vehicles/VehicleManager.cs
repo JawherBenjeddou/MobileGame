@@ -19,17 +19,7 @@ public class VehicleManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Calculate the movement offset based on the city's speed
-        float movementOffset = m_MoveSpeed * Time.deltaTime;
-
-        // Move the city along its local Z-axis
-        m_CityTransform.Translate(Vector3.forward * movementOffset);
-
-        // Move each spawned vehicle along their local Z-axis
-        foreach (GameObject vehicle in m_VehiclesSpawned)
-        {
-            vehicle.transform.Translate(Vector3.back * movementOffset);
-        }
+    
     }
 
     void VehicleSpawn()
@@ -65,10 +55,8 @@ public class VehicleManager : MonoBehaviour
         return newVehiclePrefab;
     }
 
-    [SerializeField] private float m_MoveSpeed = -0.0f;
     private GameObject m_LastSpawnedVehiclePrefab;
     private List<GameObject> m_VehiclesSpawned = new List<GameObject>();
-    [SerializeField] private Transform m_CityTransform;
     [SerializeField] private Transform[] m_SpawnPoints;
     [SerializeField] private GameObject[] m_VehiclesPrefabs;
 }
