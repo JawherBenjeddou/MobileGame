@@ -4,11 +4,20 @@ using UnityEngine;
 
 public class TerrainGeneration : MonoBehaviour
 {
-    // Start is called before the first frame update
+    // Initialization
     void Start()
     {
-       if(m_Cities.Length == 0) { Debug.Log("No Citites assigned to the array in the inspector"); }
-       if(m_Character == null) { Debug.Log("No Character is assigned in the inspector"); }
+        // Check if there are no cities assigned to the array in the inspector
+        if (m_Cities.Length == 0)
+        {
+            Debug.Log("No cities assigned to the array in the inspector");
+        }
+
+        // Check if no character is assigned in the inspector
+        if (m_Character == null)
+        {
+            Debug.Log("No character is assigned in the inspector");
+        }
     }
 
     // Update is called once per frame
@@ -21,77 +30,64 @@ public class TerrainGeneration : MonoBehaviour
             city.transform.position += city.transform.forward * m_MoveSpeed * Time.deltaTime;
         }
 
-        // Move the collider along its local Z-axis based on the first city's movement
+        // Move the terrain collider along its local Z-axis based on the first city's movement
         if (m_Cities.Length > 0)
         {
-           // m_ForwardMovement = m_Cities[0].transform.forward * m_MoveSpeed * Time.deltaTime;
             transform.position += m_Cities[0].transform.forward * m_MoveSpeed * Time.deltaTime;
         }
     }
 
+    // Triggered when a collider enters this object's trigger zone
     private void OnTriggerEnter(Collider other)
     {
         // Check if the collider that entered is the character collider
         if (other.gameObject == m_Character)
         {
+            // Perform actions for character collision
             OnCharacterCollision(other);
         }
     }
 
+    // Actions to perform when the character collides with the terrain
     private void OnCharacterCollision(Collider other)
     {
-        // This method will be called when the character collides with the terrain
+        // Log the name of the character collided with the terrain
         Debug.Log(other.name + " collided with terrain!");
 
-        // Instantiate a new city prefab after the last city in the array
-        GameObject newCity = Instantiate(m_CityPrefab, GetNextCityPosition(), Quaternion.identity);
+        // Calculate the position for the next city
+        Vector3 lastCityPosition = GetLastCityPosition();
 
-        // Add the new city to the array
-        AddCity(newCity);
+        // Destroy the first city in the array
+        Destroy(m_Cities[0]);
+
+        // Instantiate a new city at the calculated position
+        GameObject newCity = Instantiate(
+            m_CityPrefab[Random.Range(0, m_CityPrefab.Count)],
+            new Vector3(lastCityPosition.x + m_CitySpacingX, lastCityPosition.y +m_CitySpacingY, lastCityPosition.z + m_CitySpacingZ),
+            Quaternion.identity
+        );
+        // Move the collider along the Z-axis only
+        Vector3 colliderPosition = transform.position;
+        colliderPosition.z += m_CitySpacingZ;
+        transform.position = colliderPosition;
+
+        // Shift the array elements to maintain continuity
+        m_Cities[0] = m_Cities[1];
+        m_Cities[1] = newCity;
     }
 
-    private Vector3 GetNextCityPosition()
+    // Get the position of the last city in the array
+    private Vector3 GetLastCityPosition()
     {
-        // Find the position of the last city in the array
-        if (m_Cities.Length > 0)
-        {
-            // Get the position and forward direction of the last city
-            Vector3 lastCityPosition = m_Cities[m_Cities.Length - 1].transform.position;
-            Vector3 lastCityForward = m_Cities[m_Cities.Length - 1].transform.forward;
-
-            // Calculate the next position based on the last city's position and forward direction
-            return lastCityPosition + lastCityForward * m_CitySpacing;
-        }
-        else
-        {
-            // If no cities exist, start from the terrain's position
-            return transform.position;
-        }
+        return m_Cities[m_Cities.Length - 1].transform.position;
     }
 
-    private void AddCity(GameObject newCity)
-    {
-        // Create a new array with increased size
-        GameObject[] newCities = new GameObject[m_Cities.Length + 1];
-
-        // Copy existing cities to the new array
-        for (int i = 0; i < m_Cities.Length; i++)
-        {
-            newCities[i] = m_Cities[i];
-        }
-
-        // Add the new city to the last position in the new array
-        newCities[newCities.Length - 1] = newCity;
-
-        // Update the m_Cities array
-        m_Cities = newCities;
-    }
-
-    [SerializeField] private GameObject m_CityPrefab;
+    // Serialized fields for inspector visibility and adjustments
+    [SerializeField] private List<GameObject> m_CityPrefab = new List<GameObject>();
     [SerializeField] private GameObject[] m_Cities;
     [SerializeField] private GameObject m_Character;
-    //uncomment when ForwardMov is needed
-    //public Vector3 m_ForwardMovement;
     [SerializeField] private float m_MoveSpeed = 4.0f;
-    [SerializeField] private float m_CitySpacing = 10.0f;
+    [SerializeField] private float m_CitySpacingX;
+    [SerializeField] private float m_CitySpacingY;
+    [SerializeField] private float m_CitySpacingZ = 50.0f;
 }
