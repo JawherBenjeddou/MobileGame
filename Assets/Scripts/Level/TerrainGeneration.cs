@@ -8,7 +8,7 @@ public class TerrainGeneration : MonoBehaviour
     void Start()
     {
         // Check if there are no cities assigned to the array in the inspector
-        if (m_Cities.Length == 0)
+        if (m_Cities.Count == 0)
         {
             Debug.Log("No cities assigned to the array in the inspector");
         }
@@ -18,6 +18,17 @@ public class TerrainGeneration : MonoBehaviour
         {
             Debug.Log("No character is assigned in the inspector");
         }
+
+        // Calculate the starting position for the cities
+        Vector3 startPosition = Vector3.zero;
+
+        // Instantiate cities at the calculated position with spacing along the Z-axis
+        for (int i = 0; i < m_CityPrefab.Count; i++)
+        {
+            GameObject newCity = Instantiate(m_CityPrefab[i], startPosition, Quaternion.identity);
+            m_Cities.Add(newCity);
+            startPosition.z += m_CitySpacingZ;
+        }
     }
 
     // Update is called once per frame
@@ -26,12 +37,11 @@ public class TerrainGeneration : MonoBehaviour
         // Move cities along their local Z-axis
         foreach (var city in m_Cities)
         {
-            // Set the new position for cities
-            city.transform.position += city.transform.forward * m_MoveSpeed * Time.deltaTime;
+            city.transform.position += Vector3.forward * m_MoveSpeed * Time.deltaTime;
         }
 
-        // Move the terrain collider along its local Z-axis based on the first city's movement
-        if (m_Cities.Length > 0)
+        // Move the collider along its Z-axis based on the first city's movement
+        if (m_Cities.Count > 0)
         {
             transform.position += m_Cities[0].transform.forward * m_MoveSpeed * Time.deltaTime;
         }
@@ -44,50 +54,46 @@ public class TerrainGeneration : MonoBehaviour
         if (other.gameObject == m_Character)
         {
             // Perform actions for character collision
-            OnCharacterCollision(other);
+            OnCharacterCollision();
         }
     }
 
     // Actions to perform when the character collides with the terrain
-    private void OnCharacterCollision(Collider other)
+    private void OnCharacterCollision()
     {
-        // Log the name of the character collided with the terrain
-        Debug.Log(other.name + " collided with terrain!");
-
-        // Calculate the position for the next city
-        Vector3 lastCityPosition = GetLastCityPosition();
-
-        // Destroy the first city in the array
-        Destroy(m_Cities[0]);
-
-        // Instantiate a new city at the calculated position
-        GameObject newCity = Instantiate(
-            m_CityPrefab[Random.Range(0, m_CityPrefab.Count)],
-            new Vector3(lastCityPosition.x + m_CitySpacingX, lastCityPosition.y +m_CitySpacingY, lastCityPosition.z + m_CitySpacingZ),
-            Quaternion.identity
-        );
         // Move the collider along the Z-axis only
         Vector3 colliderPosition = transform.position;
         colliderPosition.z += m_CitySpacingZ;
         transform.position = colliderPosition;
 
-        // Shift the array elements to maintain continuity
-        m_Cities[0] = m_Cities[1];
-        m_Cities[1] = newCity;
+        // Destroy the oldest city
+        if (m_Cities.Count > 0)
+        {
+            Destroy(m_Cities[0]);
+            m_Cities.RemoveAt(0);
+        }
+
+        // Calculate the position for the new city
+        colliderPosition.z += m_CitySpacingZ * (m_Cities.Count - 1);
+
+        // Instantiate a new city
+        GameObject newCity = Instantiate(m_CityPrefab[Random.Range(0, m_CityPrefab.Count)], colliderPosition, Quaternion.identity);
+        m_Cities.Add(newCity);
     }
 
-    // Get the position of the last city in the array
-    private Vector3 GetLastCityPosition()
-    {
-        return m_Cities[m_Cities.Length - 1].transform.position;
-    }
+    // List to store instantiated cities
+    [SerializeField] private List<GameObject> m_Cities = new List<GameObject>();
 
-    // Serialized fields for inspector visibility and adjustments
+    // Prefabs for cities to be instantiated
     [SerializeField] private List<GameObject> m_CityPrefab = new List<GameObject>();
-    [SerializeField] private GameObject[] m_Cities;
+
+    // Reference to the character GameObject
     [SerializeField] private GameObject m_Character;
+
+    // Speed at which cities move
     [SerializeField] private float m_MoveSpeed = 4.0f;
-    [SerializeField] private float m_CitySpacingX;
-    [SerializeField] private float m_CitySpacingY;
+
+    // Spacing between cities along the Z-axis
     [SerializeField] private float m_CitySpacingZ = 50.0f;
+
 }

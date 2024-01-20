@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class VehicleManager : MonoBehaviour
 {
+
     // Start is called before the first frame update
     void Start()
     {
@@ -13,20 +14,18 @@ public class VehicleManager : MonoBehaviour
             Debug.LogWarning("Spawn points or vehicle prefabs are not set!");
             return;
         }
+
+        // Call the vehicle spawn method
         VehicleSpawn();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-    
-    }
-
+    // Vehicle spawning logic
     void VehicleSpawn()
     {
         // Iterate through all spawn points and spawn a different vehicle at each one
         foreach (Transform spawnPoint in m_SpawnPoints)
         {
+            // Get a different vehicle than the last frame
             GameObject vehiclePrefab = GetDifferentVehicleThanLastFrame();
 
             // Instantiate the selected vehicle prefab at the current spawn point
@@ -43,6 +42,7 @@ public class VehicleManager : MonoBehaviour
         }
     }
 
+    // Get a vehicle prefab different than the last frame
     private GameObject GetDifferentVehicleThanLastFrame()
     {
         GameObject newVehiclePrefab;
@@ -55,8 +55,11 @@ public class VehicleManager : MonoBehaviour
         return newVehiclePrefab;
     }
 
-    private GameObject m_LastSpawnedVehiclePrefab;
-    private List<GameObject> m_VehiclesSpawned = new List<GameObject>();
-    [SerializeField] private Transform[] m_SpawnPoints;
-    [SerializeField] private GameObject[] m_VehiclesPrefabs;
+    // Variables
+    [SerializeField] private Transform[] m_SpawnPoints; // Array of spawn points for vehicles
+    [SerializeField] private GameObject[] m_VehiclesPrefabs; // Array of vehicle prefabs
+
+    private GameObject m_LastSpawnedVehiclePrefab; // Reference to the last spawned vehicle prefab
+    private List<GameObject> m_VehiclesSpawned = new List<GameObject>(); // List to store spawned vehicles
+
 }

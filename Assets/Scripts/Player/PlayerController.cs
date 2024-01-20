@@ -1,23 +1,20 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+  
+
     // Start is called before the first frame update
-    void Start()    
+    void Start()
     {
-        m_rb = GetComponent<Rigidbody>();
-        if(m_rb == null )
-        {
-            Debug.Log("RigidBody does not exist");
-        }
+        InitializeComponents();
+
         // Check if the button is assigned
-        if ((m_LeftButton != null) && (m_RightButton != null))
+        if (m_LeftButton != null && m_RightButton != null)
         {
-            // Add a listener to the button's click event
+            // Add listeners to the button's click events
             m_LeftButton.onClick.AddListener(OnLeftButtonClick);
             m_RightButton.onClick.AddListener(OnRightButtonClick);
         }
@@ -26,29 +23,27 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("Button is not assigned in the Inspector!");
         }
     }
-    
-    // Update is called once per frame
-    void Update()
+
+    // Initialize necessary components
+    void InitializeComponents()
     {
+        m_rb = GetComponent<Rigidbody>();
+        if (m_rb == null)
+        {
+            Debug.Log("RigidBody does not exist");
+        }
     }
 
-    //// FixedUpdate is used for physics-related updates
-    //void FixedUpdate()
-    //{
-
-    //}
-
-    //Function invoked when Left button is clicked
+    // Function invoked when Left button is clicked
     void OnLeftButtonClick()
     {
-        //Leaving this for debugging purposes 
         Debug.Log("Left Button Clicked!");
-        MoveToRandomPosition(); 
+        MoveToRandomPosition();
     }
-    //Function invoked when Right button is clicked
+
+    // Function invoked when Right button is clicked
     void OnRightButtonClick()
     {
-        //Leaving this for debugging purposes 
         Debug.Log("Right Button Clicked!");
         MoveToRandomPosition();
     }
@@ -58,7 +53,7 @@ public class PlayerController : MonoBehaviour
     {
         if (m_LanePositions.Length > 0)
         {
-            int randomindex = -1;
+            int randomindex;
 
             do
             {
@@ -100,7 +95,7 @@ public class PlayerController : MonoBehaviour
         transform.position = targetPosition;
     }
 
-    [SerializeField] private float m_ForwardSpeed = 5f;
+    //Variables
     [SerializeField] private Button m_LeftButton;
     [SerializeField] private Button m_RightButton;
     [SerializeField] private Transform[] m_LanePositions;
