@@ -4,24 +4,17 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-  
-
+   
     // Start is called before the first frame update
     void Start()
     {
         InitializeComponents();
+    }
 
-        // Check if the button is assigned
-        if (m_LeftButton != null && m_RightButton != null)
-        {
-            // Add listeners to the button's click events
-            m_LeftButton.onClick.AddListener(OnLeftButtonClick);
-            m_RightButton.onClick.AddListener(OnRightButtonClick);
-        }
-        else
-        {
-            Debug.LogError("Button is not assigned in the Inspector!");
-        }
+    // Update is called once per frame
+    void Update()
+    {
+        HandleSwipeInput();
     }
 
     // Initialize necessary components
@@ -30,25 +23,59 @@ public class PlayerController : MonoBehaviour
         m_rb = GetComponent<Rigidbody>();
         if (m_rb == null)
         {
-            Debug.Log("RigidBody does not exist");
+            Debug.LogError("Rigidbody not found!");
         }
     }
 
-    // Function invoked when Left button is clicked
-    void OnLeftButtonClick()
+    // Handle swipe input
+    void HandleSwipeInput()
     {
-        Debug.Log("Left Button Clicked!");
-        MoveToRandomPosition();
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            switch (touch.phase)
+            {
+                case TouchPhase.Began:
+                    // Record the start position of the swipe
+                    m_TouchStartPos = touch.position;
+                    m_IsSwiping = true;
+                    break;
+
+                case TouchPhase.Moved:
+                    // Check if the user is still swiping
+                    if (m_IsSwiping)
+                    {
+                        // Calculate the swipe distance
+                        float swipeDelta = touch.position.x - m_TouchStartPos.x;
+
+                        // Determine if it's a left or right swipe based on the delta
+                        if (Mathf.Abs(swipeDelta) > 50f) // You can adjust this threshold
+                        {
+                            // Swipe to the left
+                            if (swipeDelta < 0)
+                            {
+                                MoveToRandomPosition();
+                                m_IsSwiping = false;
+                            }
+                            // Swipe to the right
+                            else
+                            {
+                                MoveToRandomPosition();
+                                m_IsSwiping = false;
+                            }
+                        }
+                    }
+                    break;
+
+                case TouchPhase.Ended:
+                    m_IsSwiping = false;
+                    break;
+            }
+        }
     }
 
-    // Function invoked when Right button is clicked
-    void OnRightButtonClick()
-    {
-        Debug.Log("Right Button Clicked!");
-        MoveToRandomPosition();
-    }
-
-    // This function smoothly moves the player to a random position
+    // Function to move the player to a random position
     void MoveToRandomPosition()
     {
         if (m_LanePositions.Length > 0)
@@ -59,8 +86,7 @@ public class PlayerController : MonoBehaviour
             {
                 // Randomly select an index from the array
                 randomindex = UnityEngine.Random.Range(0, m_LanePositions.Length);
-            }
-            while (randomindex == lastrandomindex);
+            } while (randomindex == lastrandomindex);
 
             lastrandomindex = randomindex;
 
@@ -94,11 +120,13 @@ public class PlayerController : MonoBehaviour
         // Ensure the player is exactly at the target position when the coroutine ends
         transform.position = targetPosition;
     }
-
-    //Variables
-    [SerializeField] private Button m_LeftButton;
-    [SerializeField] private Button m_RightButton;
+    // Variables
     [SerializeField] private Transform[] m_LanePositions;
     private int lastrandomindex = -1;
     private Rigidbody m_rb;
+
+    // Swipe detection variables
+    private Vector2 m_TouchStartPos;
+    private bool m_IsSwiping = false;
+
 }
