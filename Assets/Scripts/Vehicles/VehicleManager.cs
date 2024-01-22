@@ -1,65 +1,35 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class VehicleManager : MonoBehaviour
 {
-
-    // Start is called before the first frame update
-    void Start()
+   
+    // Update is called once per frame
+    void Update()
     {
-        // Check if spawn points and vehicle prefabs are available
-        if (m_SpawnPoints.Length == 0 || m_VehiclesPrefabs.Length == 0)
+        // Check if it's time to spawn a new car
+        if (Time.time > m_NextSpawn)
         {
-            Debug.LogWarning("Spawn points or vehicle prefabs are not set!");
-            return;
-        }
+            // Randomly choose a car from the array
+            m_WhatToSpawn = Random.Range(0, m_CarPrefabs.Length);
 
-        // Call the vehicle spawn method
-        VehicleSpawn();
-    }
+            // Calculate a random spawn position between spawnPosition1 and spawnPosition2
+            Vector3 spawnPosition = Vector3.Lerp(m_SpawnPosition1, m_SpawnPosition2, Random.Range(0f, 1f));
 
-    // Vehicle spawning logic
-    void VehicleSpawn()
-    {
-        // Iterate through all spawn points and spawn a different vehicle at each one
-        foreach (Transform spawnPoint in m_SpawnPoints)
-        {
-            // Get a different vehicle than the last frame
-            GameObject vehiclePrefab = GetDifferentVehicleThanLastFrame();
+            // Instantiate the chosen car at the calculated spawn position
+            Instantiate(m_CarPrefabs[m_WhatToSpawn], spawnPosition, Quaternion.identity);
 
-            // Instantiate the selected vehicle prefab at the current spawn point
-            GameObject spawnedVehicle = Instantiate(vehiclePrefab, spawnPoint.position, spawnPoint.rotation);
-
-            // Optionally, you can parent the spawned vehicle to the VehicleManager
-            spawnedVehicle.transform.parent = transform;
-
-            // Update the last spawned vehicle
-            m_LastSpawnedVehiclePrefab = spawnedVehicle;
-
-            // Add the spawned vehicle to the list
-            m_VehiclesSpawned.Add(spawnedVehicle);
+            // Update the next spawn time
+            m_NextSpawn = Time.time + m_SpawnRate;
         }
     }
+    [Header("Vehicle Settings")]
+    [SerializeField] private GameObject[] m_CarPrefabs;  // Array of car prefabs
+    [SerializeField] private Vector3 m_SpawnPosition1;    // First spawn position
+    [SerializeField] private Vector3 m_SpawnPosition2;    // Second spawn position
+    [SerializeField] private float m_SpawnRate = 2f;      // Rate at which cars spawn
 
-    // Get a vehicle prefab different than the last frame
-    private GameObject GetDifferentVehicleThanLastFrame()
-    {
-        GameObject newVehiclePrefab;
-        do
-        {
-            // Randomly select a vehicle prefab
-            newVehiclePrefab = m_VehiclesPrefabs[Random.Range(0, m_VehiclesPrefabs.Length)];
-        } while (newVehiclePrefab == m_LastSpawnedVehiclePrefab);
-
-        return newVehiclePrefab;
-    }
-
-    // Variables
-    [SerializeField] private Transform[] m_SpawnPoints; // Array of spawn points for vehicles
-    [SerializeField] private GameObject[] m_VehiclesPrefabs; // Array of vehicle prefabs
-
-    private GameObject m_LastSpawnedVehiclePrefab; // Reference to the last spawned vehicle prefab
-    private List<GameObject> m_VehiclesSpawned = new List<GameObject>(); // List to store spawned vehicles
+    private float m_NextSpawn = 0f;  // Time at which the next car will spawn
+    private int m_WhatToSpawn;       // Index of the car to spawn
 
 }

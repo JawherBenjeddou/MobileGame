@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -118,15 +117,13 @@ public class PauseMenu : MonoBehaviour
     // Variables
     public static bool m_GamePaused = false;
     public static bool m_IsEnabled = false;
-    private Image m_ResumeButtonImage;
 
-    // UI Elements
     [Header("UI Elements")]
-    [SerializeField] private Button m_PauseButton;
-    [SerializeField] private Button m_ResumeButton;
-    [SerializeField] private Button m_RestartButton;
-    [SerializeField] private GameObject m_PauseMenuUI;
-    [SerializeField] private GameObject m_FogContainer;
-    [SerializeField] private Button m_EnableFog;
+    [SerializeField] private Button m_PauseButton;       // Reference to the pause button
+    [SerializeField] private Button m_ResumeButton;      // Reference to the resume button
+    [SerializeField] private Button m_RestartButton;     // Reference to the restart button
+    [SerializeField] private GameObject m_PauseMenuUI;   // Reference to the pause menu UI
+    [SerializeField] private GameObject m_FogContainer;   // Reference to the fog container
+    [SerializeField] private Button m_EnableFog;         // Reference to the fog toggle button
 
 }

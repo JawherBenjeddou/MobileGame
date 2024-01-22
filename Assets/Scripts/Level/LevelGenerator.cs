@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class LevelGenerator : MonoBehaviour
 {
 
@@ -54,7 +55,7 @@ public class LevelGenerator : MonoBehaviour
             city.transform.position += Vector3.back * m_MoveSpeed * Time.deltaTime;
 
             // Check if the city has passed the player's position
-            if (city.transform.position.z < (player.position.z - 15))
+            if (city.transform.position.z < (m_Player.position.z - 15))
             {
                 // Destroy the city
                 Destroy(city);
@@ -65,7 +66,7 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-    // Coroutine to generate a new city after a specified time interval
+    // Coroutine to generate a new city
     private IEnumerator GenerateCity()
     {
         // Randomly select a city prefab
@@ -80,33 +81,60 @@ public class LevelGenerator : MonoBehaviour
         // Increment the Z position for the next city instantiation
         m_Zpos += 28;
 
+        // Spawn props at specific positions and make them children of the city
+        StartCoroutine(SpawnPropsWithDelay(newCity.transform, new Vector3(4.4f, 0f, 90.0f), new Vector3(-2.23f, 0f, 90.0f)));
+
         // Wait for a certain time before allowing the next city generation
         yield return new WaitForSeconds(m_TimeToGenerate);
 
         // Reset the flag to allow the next city generation
         m_CreatingCity = false;
     }
-    // Array of city prefabs to be instantiated
-    public GameObject[] m_CitiesPrefabs;
 
-    // List to keep track of instantiated cities
-    public List<GameObject> m_Cities = new List<GameObject>();
+    // Coroutine to spawn props at specific positions with a delay between them
+    private IEnumerator SpawnPropsWithDelay(Transform parent, Vector3 position1, Vector3 position2)
+    {
+        SpawnProp(parent, position1);
+
+        // Wait for a certain time before spawning the next prop
+        yield return new WaitForSeconds(Random.Range(5, m_PropSpawnDelay));
+
+        // Apply Z-offset to the second prop position
+        position2.z += zOffsetValue;
+
+        SpawnProp(parent, position2);
+    }
+
+    // Function to spawn props at a specific position and make them children of the parent
+    private void SpawnProp(Transform parent, Vector3 position)
+    {
+        // Instantiate the prop at the specified position and make it a child of the parent
+        GameObject prop = Instantiate(m_PropPrefabs[Random.Range(0, m_PropPrefabs.Length)], position, Quaternion.identity);
+        prop.transform.parent = parent;
+    }
+
+    [Header("City Settings")]
+    [SerializeField] private GameObject[] m_CitiesPrefabs; // Array of city prefabs
+    [SerializeField] private List<GameObject> m_Cities = new List<GameObject>(); // List to track instantiated cities
+    [SerializeField] private float m_PropSpawnDelay; // Delay between prop spawns
+
+    [Header("Player and Props")]
+    [SerializeField] private Transform m_Player; // Reference to the player's transform
+    [SerializeField] private GameObject[] m_PropPrefabs; // Array of prop prefabs
+    [SerializeField] private float zOffsetValue = 10.0f; // Z-axis offset for prop spawning
+
+    [Header("Generation Parameters")]
+    [SerializeField] private float m_TimeToGenerate = 2.0f; // Time interval to generate a new city
+    [SerializeField] private int m_MoveSpeed = 15; // Speed at which cities move
 
     // Initial position for city instantiation
     private float m_Zpos = 0.0f;
 
     // Flag to control city generation
-    public bool m_CreatingCity;
+    private bool m_CreatingCity;
 
     // Randomly selected city number
-    public int m_CityNumber;
+    private int m_CityNumber;
 
-    // Time interval to generate a new city
-    public float m_TimeToGenerate;
 
-    // Speed at which cities move
-    public int m_MoveSpeed;
-
-    // Reference to the player's transform for position comparison
-    public Transform player;
 }

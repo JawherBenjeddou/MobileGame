@@ -4,7 +4,6 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-   
     // Start is called before the first frame update
     void Start()
     {
@@ -52,18 +51,9 @@ public class PlayerController : MonoBehaviour
                         // Determine if it's a left or right swipe based on the delta
                         if (Mathf.Abs(swipeDelta) > 50f) // You can adjust this threshold
                         {
-                            // Swipe to the left
-                            if (swipeDelta < 0)
-                            {
-                                MoveToRandomPosition();
-                                m_IsSwiping = false;
-                            }
-                            // Swipe to the right
-                            else
-                            {
-                                MoveToRandomPosition();
-                                m_IsSwiping = false;
-                            }
+                            // Swipe to the left or right
+                            MoveToRandomPosition();
+                            m_IsSwiping = false;
                         }
                     }
                     break;
@@ -80,18 +70,18 @@ public class PlayerController : MonoBehaviour
     {
         if (m_LanePositions.Length > 0)
         {
-            int randomindex;
+            int randomIndex;
 
             do
             {
                 // Randomly select an index from the array
-                randomindex = UnityEngine.Random.Range(0, m_LanePositions.Length);
-            } while (randomindex == lastrandomindex);
+                randomIndex = UnityEngine.Random.Range(0, m_LanePositions.Length);
+            } while (randomIndex == m_LastRandomIndex);
 
-            lastrandomindex = randomindex;
+            m_LastRandomIndex = randomIndex;
 
             // Get the chosen transform position
-            Transform chosenPosition = m_LanePositions[randomindex];
+            Transform chosenPosition = m_LanePositions[randomIndex];
 
             // Start the coroutine for smooth movement
             StartCoroutine(MoveToPositionCoroutine(chosenPosition.position));
@@ -120,13 +110,29 @@ public class PlayerController : MonoBehaviour
         // Ensure the player is exactly at the target position when the coroutine ends
         transform.position = targetPosition;
     }
-    // Variables
-    [SerializeField] private Transform[] m_LanePositions;
-    private int lastrandomindex = -1;
-    private Rigidbody m_rb;
 
-    // Swipe detection variables
-    private Vector2 m_TouchStartPos;
-    private bool m_IsSwiping = false;
+    // Called when the collider enters another collider
+    private void OnCollisionEnter(Collision other)
+    {
+        // Check if the collision is with a prop
+        if (other.gameObject.CompareTag("Collider"))
+        {
+            // Find the DeathMenu script and call the function to enable the GUI
+            DeathMenu deathMenu = FindObjectOfType<DeathMenu>();
+            if (deathMenu != null)
+            {
+                deathMenu.EnableGUI(); // You need to implement this function in the DeathMenu script
+            }
+        }
+    }
+
+    [Header("Components")]
+    [SerializeField] private Rigidbody m_rb;  // Reference to the Rigidbody component
+
+    [Header("Swipe Detection")]
+    [SerializeField] private Transform[] m_LanePositions;  // Array of target lane positions
+    private int m_LastRandomIndex = -1;  // Last randomly selected lane index
+    private Vector2 m_TouchStartPos;  // Start position of the swipe
+    private bool m_IsSwiping;  // Flag to track if the player is currently swiping
 
 }
