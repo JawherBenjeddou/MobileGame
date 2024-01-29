@@ -1,5 +1,5 @@
 # MobileGame
- Attempting to whip up a mobile game in under 10 days...
+ Attempting to whip up a mobile game in under 1 day...
 
 ## Screenshots
 
